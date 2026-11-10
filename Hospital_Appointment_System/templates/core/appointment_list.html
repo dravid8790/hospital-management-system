@@ -1,0 +1,64 @@
+{% extends "base.html" %}{% block content %}
+<section class="page-head">
+    <div class="container">
+        <p class="eyebrow">APPOINTMENT CENTRE</p>
+        <h1>Your appointments.</h1>
+        <p>Review, search and manage appointment requests.</p>
+    </div>
+</section>
+<div class="container content-overlap">
+    <form class="filter-bar mb-4" method="get">
+        <input class="form-control" name="q" value="{{ query }}" placeholder="Search doctor or reason">
+        <select class="form-select" name="status">
+            <option value="">All statuses</option>
+            <option {% if selected_status == 'Pending' %}selected{% endif %}>Pending</option>
+            <option {% if selected_status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+            <option {% if selected_status == 'Completed' %}selected{% endif %}>Completed</option>
+            <option {% if selected_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+        </select><button class="btn btn-primary">Filter</button>
+        <a class="btn btn-light" href="{% url 'appointment_list' %}">Clear</a></form>
+        <div class="panel-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="mb-0">Appointment records</h3>
+                <a class="btn btn-primary" href="{% url 'appointment_create' %}">
+                    <i class="bi bi-plus-lg me-1"></i>Book new</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr>{% if user.is_staff %}
+                            <th>Patient</th>{% endif %}
+                            <th>Doctor</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in appointments %}
+                        <tr>{% if user.is_staff %}
+                            <td>{{ a.patient.username }}</td>
+                            {% endif %}
+                            <td>Dr. {{ a.doctor.name }}</td>
+                            <td>{{ a.appointment_date|date:"M d, Y" }}</td>
+                            <td>{{ a.appointment_time|time:"g:i A" }}</td>
+                            <td>{{ a.reason|truncatechars:45 }}</td>
+                            <td><span class="status status-{{ a.status|lower }}">{{ a.status }
+                            </span>
+                        </td>
+                            <td class="text-nowrap">{% if a.status != 'Completed' and a.status != 'Cancelled' %}
+                                <a class="btn btn-sm btn-light" href="{% url 'appointment_update' a.pk %}">
+                                    <i class="bi bi-pencil"></i></a>
+                                    <a class="btn btn-sm btn-light text-danger" href="{% url 'appointment_delete' a.pk %}">
+                                        <i class="bi bi-x-circle"></i></a>
+                                        {% endif %}</td></tr>
+                                        {% empty %}<tr>
+                                            <td colspan="7" class="text-center py-5 text-muted">No appointment records found.</td>
+                                        </tr>{% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endblock %}
